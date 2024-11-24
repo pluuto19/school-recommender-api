@@ -6,6 +6,7 @@ import WelcomeScreen from './components/WelcomeScreen';
 import AuthScreen from './components/AuthScreen';
 import HomeScreen from './components/HomeScreen';
 import SignUpScreen from './components/SingUpScreen';
+import Toast from 'react-native-toast-message';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('Welcome');
@@ -21,6 +22,7 @@ export default function App() {
           {currentScreen === 'Home' && <HomeScreen navigate={navigate} />}
           {currentScreen === 'SignUp' && <SignUpScreen navigate={navigate} />}
         </View>
+        <Toast />
       </PaperProvider>
     </SafeAreaProvider>
   );
