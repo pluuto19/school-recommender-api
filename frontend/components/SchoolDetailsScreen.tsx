@@ -1,9 +1,12 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, Card, Button } from 'react-native-paper';
+import { School } from './types';
 
 const SchoolDetailsScreen = ({ route, navigate }: { route: any; navigate: (screen: string) => void }) => {
-  const { school } = route.params || {}; // Safeguard against undefined params
+  const school: School | undefined = route?.params?.school;
+
+  console.log('Received school details:', school); // Debugging log
 
   if (!school) {
     return (
@@ -27,11 +30,6 @@ const SchoolDetailsScreen = ({ route, navigate }: { route: any; navigate: (scree
         <Card.Content>
           <Text>Location: {school.location}</Text>
           <Text>Rating: {school.rating}</Text>
-          <Text>Fees: {school.fees}</Text>
-          <Text>Facilities:</Text>
-          {school.facilities.map((facility: string, index: number) => (
-            <Text key={index}>- {facility}</Text>
-          ))}
         </Card.Content>
       </Card>
       <Button mode="outlined" onPress={() => navigate('Home')} style={styles.backButton}>
@@ -53,8 +51,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   card: {
-    padding: 16,
     marginBottom: 16,
+    padding: 16,
   },
   backButton: {
     marginTop: 16,

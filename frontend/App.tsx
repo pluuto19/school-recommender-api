@@ -9,6 +9,7 @@ import SignUpScreen from './components/SingUpScreen';
 import SchoolDetailsScreen from './components/SchoolDetailsScreen';
 import FavoritesScreen from './components/FavoriteScreen';
 import Toast from 'react-native-toast-message';
+import { FavoritesProvider } from './components/FavoritesContext';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('Welcome');
@@ -20,6 +21,7 @@ export default function App() {
   };
 
   return (
+    <FavoritesProvider>
     <SafeAreaProvider>
       <PaperProvider>
         <View style={styles.container}>
@@ -30,11 +32,14 @@ export default function App() {
           {currentScreen === 'SchoolDetails' && (
             <SchoolDetailsScreen route={{ params: currentRoute }} navigate={navigate} />
           )}
-          {currentScreen === 'Favorites' && <FavoritesScreen navigate={navigate} />}
+          {currentScreen === 'Favorites' && (
+            <FavoritesScreen route={{ params: currentRoute }} navigate={navigate} />
+          )}
         </View>
         <Toast />
       </PaperProvider>
     </SafeAreaProvider>
+  </FavoritesProvider>
   );
 }
 

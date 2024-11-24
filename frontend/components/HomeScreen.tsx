@@ -2,28 +2,84 @@ import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, TextInput, Card, Button } from 'react-native-paper';
 import { FlatList } from 'react-native';
+import Toast from 'react-native-toast-message';
+import { useFavorites } from './FavoritesContext';
+import { School } from './types';
 
-const dummySchools = [
-  { id: '1', name: 'Greenwood High School', location: 'California', rating: 4.5, fees: '$5000/year', facilities: ['Library', 'Sports Complex', 'Science Labs'] },
-  { id: '2', name: 'Harmony International', location: 'Texas', rating: 4.7, fees: '$4500/year', facilities: ['Art Room', 'Music Room', 'Computer Labs'] },
-  { id: '3', name: 'Starlight Academy', location: 'New York', rating: 4.8, fees: '$5500/year', facilities: ['Gym', 'Swimming Pool', 'Robotics Labs'] },
+const dummySchools: School[] = [
+  {
+    id: '1',
+    name: 'Greenwood High School',
+    location: 'California, USA',
+    rating: 4.5,
+    fees: 5000,
+    facilities: ['Library', 'Sports Complex', 'Science Labs'],
+  },
+  {
+    id: '2',
+    name: 'Harmony International School',
+    location: 'Texas, USA',
+    rating: 4.7,
+    fees: 4500,
+    facilities: ['Art Room', 'Music Studio', 'Computer Labs'],
+  },
+  {
+    id: '3',
+    name: 'Starlight Academy',
+    location: 'New York, USA',
+    rating: 4.8,
+    fees: 5500,
+    facilities: ['Gymnasium', 'Swimming Pool', 'Robotics Lab'],
+  },
+  {
+    id: '4',
+    name: 'Riverside School',
+    location: 'Florida, USA',
+    rating: 4.6,
+    fees: 5200,
+    facilities: ['Playground', 'Auditorium', 'Smart Classrooms'],
+  },
+  {
+    id: '5',
+    name: 'Sunrise Elementary School',
+    location: 'Seattle, USA',
+    rating: 4.4,
+    fees: 4800,
+    facilities: ['Art Gallery', 'Science Park', 'Language Labs'],
+  },
 ];
-
 const HomeScreen = ({ navigate }: { navigate: (screen: string, params?: any) => void }) => {
+  const { favorites, addFavorite } = useFavorites();
   const [query, setQuery] = useState('');
   const [filteredSchools, setFilteredSchools] = useState(dummySchools);
 
   const handleSearch = (text: string) => {
     setQuery(text);
-    if (text.trim() === '') {
-      setFilteredSchools(dummySchools);
-    } else {
-      setFilteredSchools(
-        dummySchools.filter((school) =>
-          school.name.toLowerCase().includes(text.toLowerCase())
-        )
-      );
+    setFilteredSchools(
+      text.trim()
+        ? dummySchools.filter((school) =>
+            school.name.toLowerCase().includes(text.toLowerCase())
+          )
+        : dummySchools
+    );
+  };
+
+  const addToFavorites = (school: School) => {
+    if (favorites.some((fav) => fav.id === school.id)) {
+      Toast.show({
+        type: 'info',
+        text1: 'Already Added',
+        text2: `${school.name} is already in your favorites.`,
+      });
+      return;
     }
+
+    addFavorite(school);
+    Toast.show({
+      type: 'success',
+      text1: 'Added to Favorites',
+      text2: `${school.name} has been added to your favorites.`,
+    });
   };
 
   return (
@@ -40,29 +96,43 @@ const HomeScreen = ({ navigate }: { navigate: (screen: string, params?: any) => 
         style={styles.searchBar}
       />
 
-      <Text variant="titleLarge" style={styles.sectionTitle}>
-        Recommended Schools
-      </Text>
-
-      <FlatList
+      <FlatList<School>
         data={filteredSchools}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
+        renderItem={({ item }) => {
+          console.log('Rendering school:', item); // Debug log
+          return(
           <Card style={styles.card}>
             <Card.Title title={item.name} subtitle={item.location} />
             <Card.Content>
               <Text>Rating: {item.rating}</Text>
             </Card.Content>
+            <Card.Content>
+              <Text>Fees: ${item.fees}</Text>
+            </Card.Content>
+            <Card.Content>
+              <Text>Facilities: {item.facilities.join(', ')}</Text>
+            </Card.Content>
             <Card.Actions>
               <Button
                 mode="contained"
-                onPress={() => navigate('SchoolDetails', { school: item })}
+                onPress={() => {
+                  console.log('Navigating to SchoolDetails with:', item); // Debug log
+                  navigate('SchoolDetails', { school: item });
+                }}
               >
                 View Details
               </Button>
+              <Button
+                mode="outlined"
+                onPress={() => addToFavorites(item)}
+              >
+                Add to Favorites
+              </Button>
             </Card.Actions>
           </Card>
-        )}
+        );
+        }}
       />
 
       <Button
@@ -89,10 +159,6 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     marginBottom: 16,
-  },
-  sectionTitle: {
-    marginBottom: 8,
-    fontWeight: 'bold',
   },
   card: {
     marginBottom: 16,
