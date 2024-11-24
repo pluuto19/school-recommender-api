@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Dimensions, Image } from 'react-native';
+import { View, StyleSheet, Dimensions, Image,TouchableOpacity } from 'react-native';
 import { Appbar,Text, TextInput, Card, Button } from 'react-native-paper';
 import { FlatList } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
@@ -105,12 +105,12 @@ const HomeScreen = ({ navigate }: { navigate: (screen: string, params?: any) => 
           title={`Welcome, Admin`}
           titleStyle={styles.headerTitle}
         />
-        <Appbar.Action
-          icon="logout"
-          onPress={handleLogout}
-          color='#fff'
-          accessibilityLabel="Logout Button"
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+        <Image
+          source={require('./logout.png')} // Path to your image
+          style={styles.logoutImage}
         />
+      </TouchableOpacity>
       </Appbar.Header>
 
       <TextInput
@@ -185,6 +185,13 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 20,
+  },
+  logoutButton: {
+    marginRight: 16,
+  },
+  logoutImage: {
+    width: 24,
+    height: 24,
   },
   searchBar: {
     marginBottom: 16,
