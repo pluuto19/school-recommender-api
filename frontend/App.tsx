@@ -5,6 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'; // Add this i
 import WelcomeScreen from './components/WelcomeScreen';
 import AuthScreen from './components/AuthScreen';
 import HomeScreen from './components/HomeScreen';
+import SignUpScreen from './components/SingUpScreen';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('Welcome');
@@ -18,6 +19,7 @@ export default function App() {
           {currentScreen === 'Welcome' && <WelcomeScreen navigate={navigate} />}
           {currentScreen === 'Auth' && <AuthScreen navigate={navigate} />}
           {currentScreen === 'Home' && <HomeScreen navigate={navigate} />}
+          {currentScreen === 'SignUp' && <SignUpScreen navigate={navigate} />}
         </View>
       </PaperProvider>
     </SafeAreaProvider>

@@ -1,25 +1,22 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Text, TextInput, Button } from 'react-native-paper';
+import { TextInput, Button, Text } from 'react-native-paper';
 
-const AuthScreen = ({ navigate }: { navigate: (screen: string) => void }) => {
+const SignUpScreen = ({ navigate }: { navigate: (screen: string) => void }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleLogin = () => {
-    console.log('Logging in:', email, password);
-    navigate('Home');
-  };
-
-  const handleSignup = () => {
-    console.log('Signing up:', email, password);
-    navigate('SignUp');
+  const handleSignUp = () => {
+    // Perform sign-up logic here
+    console.log('Signing up with:', email, password);
+    navigate('Home'); // Navigate to the Home screen after successful sign-up
   };
 
   return (
     <View style={styles.container}>
       <Text variant="headlineMedium" style={styles.title}>
-        Login / Sign Up
+        Sign Up
       </Text>
       <TextInput
         label="Email"
@@ -35,15 +32,22 @@ const AuthScreen = ({ navigate }: { navigate: (screen: string) => void }) => {
         style={styles.input}
         secureTextEntry
       />
-      <Button mode="contained" onPress={handleLogin} style={styles.button}>
-        Login
+      <TextInput
+        label="Confirm Password"
+        value={confirmPassword}
+        onChangeText={setConfirmPassword}
+        style={styles.input}
+        secureTextEntry
+      />
+      <Button mode="contained" onPress={handleSignUp} style={styles.button}>
+        Sign Up
       </Button>
       <Button
         mode="outlined"
-        onPress={handleSignup}
-        style={[styles.button, styles.signupButton]}
+        onPress={() => navigate('Auth')}
+        style={styles.button}
       >
-        Sign Up
+        Back to Login
       </Button>
     </View>
   );
@@ -65,10 +69,6 @@ const styles = StyleSheet.create({
   button: {
     marginBottom: 16,
   },
-  signupButton: {
-    backgroundColor: '#fff',
-    borderColor: '#6200ee',
-  },
 });
 
-export default AuthScreen;
+export default SignUpScreen;
