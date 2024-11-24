@@ -1,16 +1,32 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
+import Toast from 'react-native-toast-message'; // Import Toast
 
 const SignUpScreen = ({ navigate }: { navigate: (screen: string) => void }) => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const handleSignUp = () => {
-    // Perform sign-up logic here
-    console.log('Signing up with:', email, password);
-    navigate('Home'); // Navigate to the Home screen after successful sign-up
+    if (!username || !password || !confirmPassword) {
+      setError('All fields are required.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    setError(null); // Clear any existing errors
+    Toast.show({
+      type: 'success',
+      text1: 'Sign Up Successful',
+      text2: 'Welcome! You can now log in. 🎉',
+    });
+    setTimeout(() => navigate('Auth'), 1500); // Navigate after the toast
   };
 
   return (
@@ -18,18 +34,20 @@ const SignUpScreen = ({ navigate }: { navigate: (screen: string) => void }) => {
       <Text variant="headlineMedium" style={styles.title}>
         Sign Up
       </Text>
+      {error && <Text style={styles.errorText}>{error}</Text>} {/* Display errors */}
       <TextInput
-        label="Email"
-        value={email}
-        onChangeText={setEmail}
+        label="Username"
+        value={username}
+        onChangeText={setUsername}
         style={styles.input}
-        keyboardType="email-address"
+        mode="outlined"
       />
       <TextInput
         label="Password"
         value={password}
         onChangeText={setPassword}
         style={styles.input}
+        mode="outlined"
         secureTextEntry
       />
       <TextInput
@@ -37,6 +55,7 @@ const SignUpScreen = ({ navigate }: { navigate: (screen: string) => void }) => {
         value={confirmPassword}
         onChangeText={setConfirmPassword}
         style={styles.input}
+        mode="outlined"
         secureTextEntry
       />
       <Button mode="contained" onPress={handleSignUp} style={styles.button}>
@@ -58,10 +77,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 16,
+    backgroundColor: '#f9f9f9',
   },
   title: {
     marginBottom: 16,
     textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  errorText: {
+    color: 'red',
+    textAlign: 'center',
+    marginBottom: 8,
   },
   input: {
     marginBottom: 16,
