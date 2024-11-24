@@ -1,70 +1,86 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { TextInput, Button, Text } from 'react-native-paper';
-import Toast from 'react-native-toast-message'; // Import Toast
+import { Text, TextInput, Button } from 'react-native-paper';
+import Toast from 'react-native-toast-message';
 
 const SignUpScreen = ({ navigate }: { navigate: (screen: string) => void }) => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [location, setLocation] = useState('');
 
   const handleSignUp = () => {
-    if (!username || !password || !confirmPassword) {
-      setError('All fields are required.');
+    if (!email || !password || !confirmPassword || !location) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Please fill in all the fields.',
+      });
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Passwords do not match.',
+      });
       return;
     }
 
-    setError(null); // Clear any existing errors
+    // Simulate successful sign-up
     Toast.show({
       type: 'success',
-      text1: 'Sign Up Successful',
-      text2: 'Welcome! You can now log in. 🎉',
+      text1: 'Sign-Up Successful',
+      text2: 'Welcome! Please log in.',
     });
-    setTimeout(() => navigate('Auth'), 1500); // Navigate after the toast
+
+    navigate('Auth'); // Navigate back to login
   };
 
   return (
     <View style={styles.container}>
-      <Text variant="headlineMedium" style={styles.title}>
+      <Text variant="headlineMedium" style={styles.header}>
         Sign Up
       </Text>
-      {error && <Text style={styles.errorText}>{error}</Text>} {/* Display errors */}
       <TextInput
-        label="Username"
-        value={username}
-        onChangeText={setUsername}
-        style={styles.input}
+        label="Email"
+        value={email}
+        onChangeText={setEmail}
         mode="outlined"
+        style={styles.input}
       />
       <TextInput
         label="Password"
         value={password}
         onChangeText={setPassword}
-        style={styles.input}
         mode="outlined"
         secureTextEntry
+        style={styles.input}
       />
       <TextInput
         label="Confirm Password"
         value={confirmPassword}
         onChangeText={setConfirmPassword}
-        style={styles.input}
         mode="outlined"
         secureTextEntry
+        style={styles.input}
       />
-      <Button mode="contained" onPress={handleSignUp} style={styles.button}>
+      <TextInput
+        label="Location"
+        value={location}
+        onChangeText={setLocation}
+        mode="outlined"
+        placeholder="Enter your city or region"
+        style={styles.input}
+      />
+      <Button mode="contained" onPress={handleSignUp} style={styles.signUpButton}>
         Sign Up
       </Button>
       <Button
         mode="outlined"
         onPress={() => navigate('Auth')}
-        style={styles.button}
+        style={styles.backButton}
       >
         Back to Login
       </Button>
@@ -75,25 +91,22 @@ const SignUpScreen = ({ navigate }: { navigate: (screen: string) => void }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     padding: 16,
     backgroundColor: '#f9f9f9',
   },
-  title: {
-    marginBottom: 16,
+  header: {
     textAlign: 'center',
+    marginBottom: 24,
     fontWeight: 'bold',
-  },
-  errorText: {
-    color: 'red',
-    textAlign: 'center',
-    marginBottom: 8,
   },
   input: {
     marginBottom: 16,
   },
-  button: {
-    marginBottom: 16,
+  signUpButton: {
+    marginTop: 16,
+  },
+  backButton: {
+    marginTop: 8,
   },
 });
 

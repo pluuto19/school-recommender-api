@@ -5,5 +5,6 @@ export interface School {
     rating: number;
     fees: number;
     facilities: string[];
+    latitude: number;
+    longitude: number;
   }
-  

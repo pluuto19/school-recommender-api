@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Text, TextInput, Card, Button } from 'react-native-paper';
+import { View, StyleSheet, Dimensions, Image } from 'react-native';
+import { Appbar,Text, TextInput, Card, Button } from 'react-native-paper';
 import { FlatList } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
 import Toast from 'react-native-toast-message';
 import { useFavorites } from './FavoritesContext';
 import { School } from './types';
@@ -14,6 +15,8 @@ const dummySchools: School[] = [
     rating: 4.5,
     fees: 5000,
     facilities: ['Library', 'Sports Complex', 'Science Labs'],
+    latitude: 37.7749,
+    longitude: -122.4194,
   },
   {
     id: '2',
@@ -22,6 +25,8 @@ const dummySchools: School[] = [
     rating: 4.7,
     fees: 4500,
     facilities: ['Art Room', 'Music Studio', 'Computer Labs'],
+    latitude: 29.7604,
+    longitude: -95.3698,
   },
   {
     id: '3',
@@ -30,6 +35,8 @@ const dummySchools: School[] = [
     rating: 4.8,
     fees: 5500,
     facilities: ['Gymnasium', 'Swimming Pool', 'Robotics Lab'],
+    latitude: 40.7128,
+    longitude: -74.0060,
   },
   {
     id: '4',
@@ -38,6 +45,8 @@ const dummySchools: School[] = [
     rating: 4.6,
     fees: 5200,
     facilities: ['Playground', 'Auditorium', 'Smart Classrooms'],
+    latitude: 27.9944,
+    longitude: -81.7603,
   },
   {
     id: '5',
@@ -46,8 +55,11 @@ const dummySchools: School[] = [
     rating: 4.4,
     fees: 4800,
     facilities: ['Art Gallery', 'Science Park', 'Language Labs'],
+    latitude: 47.6062,
+    longitude: -122.3321,
   },
 ];
+
 const HomeScreen = ({ navigate }: { navigate: (screen: string, params?: any) => void }) => {
   const { favorites, addFavorite } = useFavorites();
   const [query, setQuery] = useState('');
@@ -81,12 +93,25 @@ const HomeScreen = ({ navigate }: { navigate: (screen: string, params?: any) => 
       text2: `${school.name} has been added to your favorites.`,
     });
   };
+  const handleLogout = () => {
+    navigate('Auth');
+  };
 
   return (
     <View style={styles.container}>
-      <Text variant="headlineMedium" style={styles.header}>
-        Welcome, Admin!
-      </Text>
+      {/* Header */}
+      <Appbar.Header style={styles.header}>
+        <Appbar.Content
+          title={`Welcome, Admin`}
+          titleStyle={styles.headerTitle}
+        />
+        <Appbar.Action
+          icon="logout"
+          onPress={handleLogout}
+          color='#fff'
+          accessibilityLabel="Logout Button"
+        />
+      </Appbar.Header>
 
       <TextInput
         label="Search schools"
@@ -99,27 +124,18 @@ const HomeScreen = ({ navigate }: { navigate: (screen: string, params?: any) => 
       <FlatList<School>
         data={filteredSchools}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => {
-          console.log('Rendering school:', item); // Debug log
-          return(
+        renderItem={({ item }) => (
           <Card style={styles.card}>
             <Card.Title title={item.name} subtitle={item.location} />
             <Card.Content>
               <Text>Rating: {item.rating}</Text>
-            </Card.Content>
-            <Card.Content>
               <Text>Fees: ${item.fees}</Text>
-            </Card.Content>
-            <Card.Content>
               <Text>Facilities: {item.facilities.join(', ')}</Text>
             </Card.Content>
             <Card.Actions>
               <Button
                 mode="contained"
-                onPress={() => {
-                  console.log('Navigating to SchoolDetails with:', item); // Debug log
-                  navigate('SchoolDetails', { school: item });
-                }}
+                onPress={() => navigate('SchoolDetails', { school: item })}
               >
                 View Details
               </Button>
@@ -131,17 +147,28 @@ const HomeScreen = ({ navigate }: { navigate: (screen: string, params?: any) => 
               </Button>
             </Card.Actions>
           </Card>
-        );
-        }}
+        )}
       />
 
-      <Button
-        mode="contained"
-        style={styles.favoritesButton}
-        onPress={() => navigate('Favorites')}
-      >
-        Go to Favorites
-      </Button>
+      {/* Map Section */}
+      {/* <MapView
+        style={styles.map}
+        initialRegion={{
+          latitude: 37.7749,
+          longitude: -95.7129,
+          latitudeDelta: 20,
+          longitudeDelta: 20,
+        }}
+      > */}
+        {filteredSchools.map((school) => (
+          <Marker
+            key={school.id}
+            coordinate={{ latitude: school.latitude, longitude: school.longitude }}
+            title={school.name}
+            description={school.location}
+          />
+        ))}
+      {/* </MapView> */}
     </View>
   );
 };
@@ -149,22 +176,28 @@ const HomeScreen = ({ navigate }: { navigate: (screen: string, params?: any) => 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     backgroundColor: '#f9f9f9',
   },
   header: {
-    marginBottom: 16,
-    textAlign: 'center',
+    backgroundColor: '#6815ff', // Change color as needed
+  },
+  headerTitle: {
+    color: '#fff',
     fontWeight: 'bold',
+    fontSize: 20,
   },
   searchBar: {
     marginBottom: 16,
+    marginHorizontal: 16,
   },
   card: {
     marginBottom: 16,
+    marginHorizontal: 16,
   },
-  favoritesButton: {
-    marginTop: 16,
+  map: {
+    flex: 1,
+    margin: 16,
+    height: Dimensions.get('window').height / 3, // Show 1/3rd of the screen
   },
 });
 
