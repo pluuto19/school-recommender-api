@@ -28,7 +28,7 @@ export default function App() {
           {currentScreen === 'Welcome' && <WelcomeScreen navigate={navigate} />}
           {currentScreen === 'Auth' && <AuthScreen navigate={navigate} />}
           {currentScreen === 'SignUp' && <SignUpScreen navigate={navigate} />}
-          {currentScreen === 'Home' && <HomeScreen navigate={navigate} />}
+          {currentScreen === 'Home' && <HomeScreen navigate={navigate}  />}
           {currentScreen === 'SchoolDetails' && (
             <SchoolDetailsScreen route={{ params: currentRoute }} navigate={navigate} />
           )}
