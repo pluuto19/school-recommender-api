@@ -13,33 +13,44 @@ import { FavoritesProvider } from './components/FavoritesContext';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('Welcome');
-  const [currentRoute, setCurrentRoute] = useState<any>(null); // Store route params
+  const [currentRoute, setCurrentRoute] = useState<any>(null);
 
   const navigate = (screen: string, params?: any) => {
     setCurrentScreen(screen);
-    setCurrentRoute(params || null); // Store params for the next screen
+    setCurrentRoute(params || null);
   };
 
   return (
-    <FavoritesProvider>
-    <SafeAreaProvider>
-      <PaperProvider>
-        <View style={styles.container}>
-          {currentScreen === 'Welcome' && <WelcomeScreen navigate={navigate} />}
-          {currentScreen === 'Auth' && <AuthScreen navigate={navigate} />}
-          {currentScreen === 'SignUp' && <SignUpScreen navigate={navigate} />}
-          {currentScreen === 'Home' && <HomeScreen navigate={navigate}  />}
-          {currentScreen === 'SchoolDetails' && (
-            <SchoolDetailsScreen route={{ params: currentRoute }} navigate={navigate} />
-          )}
-          {currentScreen === 'Favorites' && (
-            <FavoritesScreen route={{ params: currentRoute }} navigate={navigate} />
-          )}
-        </View>
-        <Toast />
-      </PaperProvider>
-    </SafeAreaProvider>
-  </FavoritesProvider>
+    <>
+      <FavoritesProvider>
+      <SafeAreaProvider>
+        <PaperProvider>
+          <View style={styles.container}>
+            {currentScreen === 'Welcome' && <WelcomeScreen navigate={navigate} />}
+            {currentScreen === 'Auth' && <AuthScreen navigate={navigate} />}
+            {currentScreen === 'SignUp' && <SignUpScreen navigate={navigate} />}
+            {currentScreen === 'Home' && (
+              <HomeScreen 
+                navigate={navigate} 
+                route={{ params: currentRoute }}
+              />
+            )}
+            {currentScreen === 'SchoolDetails' && (
+              <SchoolDetailsScreen route={{ params: currentRoute }} navigate={navigate} />
+            )}
+            {currentScreen === 'Favorites' && (
+              <FavoritesScreen navigate={navigate} currentRoute={currentRoute} />
+            )}
+          </View>
+          <Toast />
+        </PaperProvider>
+      </SafeAreaProvider>
+      </FavoritesProvider>
+      <Toast 
+        position='top'
+        topOffset={60}
+      />
+    </>
   );
 }
 

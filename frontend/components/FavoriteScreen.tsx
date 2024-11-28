@@ -1,27 +1,32 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Text, Card, Button } from 'react-native-paper';
+import { Text, Card, Button, Appbar } from 'react-native-paper';
 import { FlatList } from 'react-native';
 import { useFavorites } from './FavoritesContext';
 import { School } from './types';
 
-const FavoritesScreen = ({ navigate }: { navigate: (screen: string, params?: any) => void }) => {
+interface FavoritesScreenProps {
+  navigate: (screen: string, params?: any) => void;
+  currentRoute: any;
+}
+
+const FavoritesScreen = ({ navigate, currentRoute }: FavoritesScreenProps) => {
   const { favorites } = useFavorites();
 
   return (
     <View style={styles.container}>
-      <Text variant="headlineMedium" style={styles.title}>
-        Your Favorites
-      </Text>
+      <Appbar.Header style={styles.header}>
+        <Appbar.Content title="Your Favorites" />
+      </Appbar.Header>
 
       <FlatList<School>
         data={favorites}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <Card style={styles.card}>
-            <Card.Title title={item.name} subtitle={item.location} />
+            <Card.Title title={item.Name} subtitle={item.Type} />
             <Card.Content>
-              <Text>Rating: {item.rating}</Text>
+              <Text>Rating: {item.Rating}</Text>
             </Card.Content>
             <Card.Actions>
               <Button
@@ -35,6 +40,14 @@ const FavoritesScreen = ({ navigate }: { navigate: (screen: string, params?: any
         )}
         ListEmptyComponent={<Text style={styles.emptyText}>No favorites added yet.</Text>}
       />
+      
+      <Button 
+        mode="outlined" 
+        onPress={() => navigate('Home', { user: currentRoute?.params?.user })} 
+        style={styles.backButton}
+      >
+        Back to Home
+      </Button>
     </View>
   );
 };
@@ -42,15 +55,13 @@ const FavoritesScreen = ({ navigate }: { navigate: (screen: string, params?: any
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     backgroundColor: '#f9f9f9',
   },
-  title: {
-    marginBottom: 16,
-    textAlign: 'center',
-    fontWeight: 'bold',
+  header: {
+    backgroundColor: '#6815ff',
   },
   card: {
+    marginHorizontal: 16,
     marginBottom: 16,
   },
   emptyText: {
@@ -58,6 +69,9 @@ const styles = StyleSheet.create({
     color: 'gray',
     marginTop: 16,
   },
+  backButton: {
+    margin: 16,
+  }
 });
 
 export default FavoritesScreen;

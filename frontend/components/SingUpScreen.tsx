@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, TextInput, Button } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
+import { api } from '../services/api';
 
 const SignUpScreen = ({ navigate }: { navigate: (screen: string) => void }) => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [location, setLocation] = useState('');
+  const [name, setName] = useState('');
 
-  const handleSignUp = () => {
-    if (!email || !password || !confirmPassword || !location) {
+  const handleSignUp = async () => {
+    if (!username || !password || !confirmPassword || !name) {
       Toast.show({
         type: 'error',
         text1: 'Error',
@@ -28,14 +29,23 @@ const SignUpScreen = ({ navigate }: { navigate: (screen: string) => void }) => {
       return;
     }
 
-    // Simulate successful sign-up
-    Toast.show({
-      type: 'success',
-      text1: 'Sign-Up Successful',
-      text2: 'Welcome! Please log in.',
-    });
-
-    navigate('Auth'); // Navigate back to login
+    try {
+      const response = await api.register(username, password, name);
+      if (response.success) {
+        Toast.show({
+          type: 'success',
+          text1: 'Sign-Up Successful',
+          text2: 'Welcome! Please log in.',
+        });
+        navigate('Auth');
+      }
+    } catch (error: any) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.response?.data?.message || 'Registration failed',
+      });
+    }
   };
 
   return (
@@ -44,9 +54,16 @@ const SignUpScreen = ({ navigate }: { navigate: (screen: string) => void }) => {
         Sign Up
       </Text>
       <TextInput
-        label="Email"
-        value={email}
-        onChangeText={setEmail}
+        label="Username"
+        value={username}
+        onChangeText={setUsername}
+        mode="outlined"
+        style={styles.input}
+      />
+      <TextInput
+        label="Full Name"
+        value={name}
+        onChangeText={setName}
         mode="outlined"
         style={styles.input}
       />
@@ -64,14 +81,6 @@ const SignUpScreen = ({ navigate }: { navigate: (screen: string) => void }) => {
         onChangeText={setConfirmPassword}
         mode="outlined"
         secureTextEntry
-        style={styles.input}
-      />
-      <TextInput
-        label="Location"
-        value={location}
-        onChangeText={setLocation}
-        mode="outlined"
-        placeholder="Enter your city or region"
         style={styles.input}
       />
       <Button mode="contained" onPress={handleSignUp} style={styles.signUpButton}>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Dimensions, Image,TouchableOpacity } from 'react-native';
 import { Appbar,Text, TextInput, Card, Button } from 'react-native-paper';
 import { FlatList } from 'react-native';
@@ -6,73 +6,43 @@ import MapView, { Marker } from 'react-native-maps';
 import Toast from 'react-native-toast-message';
 import { useFavorites } from './FavoritesContext';
 import { School } from './types';
+import { api } from '../services/api';
 
-const dummySchools: School[] = [
-  {
-    id: '1',
-    name: 'Greenwood High School',
-    location: 'California, USA',
-    rating: 4.5,
-    fees: 5000,
-    facilities: ['Library', 'Sports Complex', 'Science Labs'],
-    latitude: 37.7749,
-    longitude: -122.4194,
-  },
-  {
-    id: '2',
-    name: 'Harmony International School',
-    location: 'Texas, USA',
-    rating: 4.7,
-    fees: 4500,
-    facilities: ['Art Room', 'Music Studio', 'Computer Labs'],
-    latitude: 29.7604,
-    longitude: -95.3698,
-  },
-  {
-    id: '3',
-    name: 'Starlight Academy',
-    location: 'New York, USA',
-    rating: 4.8,
-    fees: 5500,
-    facilities: ['Gymnasium', 'Swimming Pool', 'Robotics Lab'],
-    latitude: 40.7128,
-    longitude: -74.0060,
-  },
-  {
-    id: '4',
-    name: 'Riverside School',
-    location: 'Florida, USA',
-    rating: 4.6,
-    fees: 5200,
-    facilities: ['Playground', 'Auditorium', 'Smart Classrooms'],
-    latitude: 27.9944,
-    longitude: -81.7603,
-  },
-  {
-    id: '5',
-    name: 'Sunrise Elementary School',
-    location: 'Seattle, USA',
-    rating: 4.4,
-    fees: 4800,
-    facilities: ['Art Gallery', 'Science Park', 'Language Labs'],
-    latitude: 47.6062,
-    longitude: -122.3321,
-  },
-];
-
-const HomeScreen = ({ navigate }: { navigate: (screen: string, params?: any) => void }) => {
+const HomeScreen = ({ navigate, route }: { 
+  navigate: (screen: string, params?: any) => void,
+  route?: { params?: { user?: { name: string } } }
+}) => {
   const { favorites, addFavorite } = useFavorites();
   const [query, setQuery] = useState('');
-  const [filteredSchools, setFilteredSchools] = useState(dummySchools);
+  const [schools, setSchools] = useState<School[]>([]);
+  const [filteredSchools, setFilteredSchools] = useState<School[]>([]);
+  const userName = route?.params?.user?.name || 'Guest';
+
+  useEffect(() => {
+    const fetchSchools = async () => {
+      try {
+        const data = await api.getSchools();
+        setSchools(data);
+        setFilteredSchools(data);
+      } catch (error) {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'Failed to fetch schools',
+        });
+      }
+    };
+    fetchSchools();
+  }, []);
 
   const handleSearch = (text: string) => {
     setQuery(text);
     setFilteredSchools(
       text.trim()
-        ? dummySchools.filter((school) =>
-            school.name.toLowerCase().includes(text.toLowerCase())
+        ? schools.filter((school) =>
+            school.Name.toLowerCase().includes(text.toLowerCase())
           )
-        : dummySchools
+        : schools
     );
   };
 
@@ -81,7 +51,7 @@ const HomeScreen = ({ navigate }: { navigate: (screen: string, params?: any) => 
       Toast.show({
         type: 'info',
         text1: 'Already Added',
-        text2: `${school.name} is already in your favorites.`,
+        text2: `${school.Name} is already in your favorites.`,
       });
       return;
     }
@@ -90,7 +60,7 @@ const HomeScreen = ({ navigate }: { navigate: (screen: string, params?: any) => 
     Toast.show({
       type: 'success',
       text1: 'Added to Favorites',
-      text2: `${school.name} has been added to your favorites.`,
+      text2: `${school.Name} has been added to your favorites.`,
     });
   };
   const handleLogout = () => {
@@ -101,16 +71,22 @@ const HomeScreen = ({ navigate }: { navigate: (screen: string, params?: any) => 
     <View style={styles.container}>
       {/* Header */}
       <Appbar.Header style={styles.header}>
-        <Appbar.Content
-          title={`Welcome, Admin`}
+        <Appbar.Content 
+          title={`Welcome ${userName}`} 
           titleStyle={styles.headerTitle}
         />
-        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-        <Image
-          source={require('./logout.png')} // Path to your image
-          style={styles.logoutImage}
-        />
-      </TouchableOpacity>
+        <TouchableOpacity 
+          onPress={() => navigate('Favorites', { user: route?.params?.user })} 
+          style={styles.favoritesButton}
+        >
+          <Text style={styles.favoritesText}>Favorites</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          onPress={handleLogout} 
+          style={styles.logoutButton}
+        >
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
       </Appbar.Header>
 
       <TextInput
@@ -126,16 +102,24 @@ const HomeScreen = ({ navigate }: { navigate: (screen: string, params?: any) => 
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <Card style={styles.card}>
-            <Card.Title title={item.name} subtitle={item.location} />
+            <Card.Title title={item.Name} subtitle={`${item.Type} - ${item.Curriculum}`} />
             <Card.Content>
-              <Text>Rating: {item.rating}</Text>
-              <Text>Fees: ${item.fees}</Text>
-              <Text>Facilities: {item.facilities.join(', ')}</Text>
+              <Text>Rating: {item.Rating}</Text>
+              <Text>Tuition: ${item.Tuition}</Text>
+              <Text>Focus: {item.Focus}</Text>
+              <Text>Facilities: {item.Facilities}</Text>
             </Card.Content>
             <Card.Actions>
               <Button
                 mode="contained"
-                onPress={() => navigate('SchoolDetails', { school: item })}
+                onPress={() => {
+                  console.log('Navigating to school:', {
+                    name: item.Name,
+                    lat: item.Latitude,
+                    lng: item.Longitude
+                  });
+                  navigate('SchoolDetails', { school: item });
+                }}
               >
                 View Details
               </Button>
@@ -163,8 +147,8 @@ const HomeScreen = ({ navigate }: { navigate: (screen: string, params?: any) => 
         {filteredSchools.map((school) => (
           <Marker
             key={school.id}
-            coordinate={{ latitude: school.latitude, longitude: school.longitude }}
-            title={school.name}
+            coordinate={{ latitude: school.Latitude, longitude: school.Longitude }}
+            title={school.Name}
             description={school.location}
           />
         ))}
@@ -188,10 +172,13 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     marginRight: 16,
+    backgroundColor: '#ff4444',
+    padding: 8,
+    borderRadius: 4,
   },
-  logoutImage: {
-    width: 24,
-    height: 24,
+  logoutText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
   searchBar: {
     marginBottom: 16,
@@ -205,6 +192,16 @@ const styles = StyleSheet.create({
     flex: 1,
     margin: 16,
     height: Dimensions.get('window').height / 3, // Show 1/3rd of the screen
+  },
+  favoritesButton: {
+    marginRight: 16,
+    backgroundColor: '#5612cc',
+    padding: 8,
+    borderRadius: 4,
+  },
+  favoritesText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
 
