@@ -4,6 +4,8 @@ import { Text, Card, Button, Appbar } from 'react-native-paper';
 import { FlatList } from 'react-native';
 import { useFavorites } from './FavoritesContext';
 import { School } from './types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { api } from '../services/api';
 
 interface FavoritesScreenProps {
   navigate: (screen: string, params?: any) => void;
@@ -12,6 +14,26 @@ interface FavoritesScreenProps {
 
 const FavoritesScreen = ({ navigate, currentRoute }: FavoritesScreenProps) => {
   const { favorites } = useFavorites();
+
+  const handleViewDetails = async (school: School) => {
+    try {
+      const userString = await AsyncStorage.getItem('user');
+      if (userString) {
+        const user = JSON.parse(userString);
+        if (user._id) {
+          await api.updateUserInteraction({
+            userId: user._id,
+            school_name: school.name,
+            interactionType: 'view'
+          });
+        }
+      }
+      navigate('SchoolDetails', { school });
+    } catch (error) {
+      console.error('Failed to record interaction:', error);
+      navigate('SchoolDetails', { school });
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -24,17 +46,17 @@ const FavoritesScreen = ({ navigate, currentRoute }: FavoritesScreenProps) => {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <Card style={styles.card}>
-            <Card.Title title={item.Name} subtitle={item.Type} />
+            <Card.Title title={item.name} subtitle={item.type} />
             <Card.Content>
-              <Text>Rating: {item.Rating}</Text>
+              <Text>Rating: {item.rating}</Text>
             </Card.Content>
             <Card.Actions>
-              <Button
-                mode="contained"
-                onPress={() => navigate('SchoolDetails', { school: item })}
-              >
-                View Details
-              </Button>
+            <Button
+  mode="contained"
+  onPress={() => handleViewDetails(item)}
+>
+  View Details
+</Button>
             </Card.Actions>
           </Card>
         )}

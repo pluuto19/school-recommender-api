@@ -3,8 +3,10 @@ import { View, StyleSheet } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import Toast from 'react-native-toast-message'; // Import Toast
 import { api } from '../services/api'; // Import API service
+import { useUser } from './UserContext';
 
 const AuthScreen = ({ navigate }: { navigate: (screen: string, params?: any) => void }) => {
+  const { setUser } = useUser();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -12,24 +14,26 @@ const AuthScreen = ({ navigate }: { navigate: (screen: string, params?: any) => 
   const handleLogin = async () => {
     if (!email || !password) {
       setError('Both email and password are required.');
-      console.log('Validation failed:', { email, password });
       return;
     }
 
     try {
-      console.log('Attempting login with:', { email, password });
       const response = await api.login(email, password);
-      console.log('Login response received:', response);
       
       if (response.success) {
         setError(null);
-        console.log('Login successful');
         Toast.show({
           type: 'success',
           text1: 'Login Successful',
           text2: 'Welcome to School Finder! 🎉'
         });
-        setTimeout(() => navigate('Home', { user: response.user }), 1500);
+        await setUser(response.user);
+        setTimeout(() => navigate('Home', { 
+          user: {
+            _id: response.user._id,
+            name: response.user.name
+          }
+        }), 1500);
       }
     } catch (error) {
       console.error('Login error:', error);

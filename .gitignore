@@ -1,7 +1,11 @@
 # OSX
 #
+.venv
 .DS_Store
 .env
+__pycache__
+
+/models
 frontend/.env
 # Xcode
 #

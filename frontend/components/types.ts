@@ -1,15 +1,15 @@
 export interface School {
-    location: string | undefined;
     id: string;
-    Name: string;
-    Latitude: number;
-    Longitude: number;
-    Type: string;
-    Curriculum: string;
-    Rating: number;
-    Tuition: number;
-    Focus: string;
-    Facilities: string;
-    'Student-Teacher Ratio': number;
-    'Test Scores': number;
-  }
+    name: string;
+    latitude: number;
+    longitude: number;
+    type: string;
+    curriculum: string;
+    rating: number;
+    tuition: number;
+    focus: string;
+    facilities: string;
+    student_teacher_ratio: number;
+    test_scores: number;
+    location?: string;
+}
